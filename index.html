@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#050b09">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<title>SECRETUM — César Cipher</title>
+<style>
+:root{--bg:#050b09;--panel:#0d1913;--panel2:#12231a;--text:#eafff2;--accent:#57ff9a;--muted:#91a89b;--line:#24513a;--glow:rgba(87,255,154,.18)}
+body.tech{--bg:#070d1a;--panel:#101b30;--panel2:#172943;--text:#edf5ff;--accent:#69baff;--muted:#9aafca;--line:#294b78;--glow:rgba(105,186,255,.2)}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 50% -10%,var(--glow),transparent 45%),var(--bg);color:var(--text);font-family:system-ui,Segoe UI,sans-serif;display:flex;justify-content:center;align-items:center;padding:22px;transition:background .3s}
+button,input,textarea{font:inherit}
+button{cursor:pointer}
+.app{width:min(520px,100%);position:relative}
+.theme{position:absolute;right:0;top:0;width:auto;padding:9px 12px;border:1px solid var(--line);border-radius:30px;background:var(--panel);color:var(--text);font-size:.75rem}
+.screen{display:none;animation:enter .35s ease}
+.screen.active{display:block}
+.home{text-align:center;padding:35px 12px 15px}
+.logo{width:88px;height:88px;margin:0 auto 20px;border:1.5px solid var(--accent);border-radius:50%;display:grid;place-items:center;font-size:39px;box-shadow:0 0 36px var(--glow);position:relative}
+.logo:after{content:"";position:absolute;inset:6px;border:1px dashed var(--accent);border-radius:50%;opacity:.6;animation:spin 18s linear infinite}
+h1{font-size:2rem;letter-spacing:.23em;color:var(--accent);margin:0 0 5px}
+.brand-sub{font-size:.76rem;letter-spacing:.25em;color:var(--muted)}
+.tagline{font-size:1.15rem;line-height:1.7;margin:30px 0}
+.tagline strong{color:var(--accent)}
+.menu{display:grid;gap:12px;margin:0 auto;width:min(360px,100%)}
+.btn{border:1px solid var(--line);border-radius:13px;background:var(--panel);color:var(--text);padding:15px 16px;font-weight:700;transition:.2s}
+.btn:hover{transform:translateY(-2px);border-color:var(--accent);box-shadow:0 0 20px var(--glow)}
+.btn.primary{background:var(--accent);color:#06120a;border-color:var(--accent)}
+body.tech .btn.primary{color:#06101d}
+.home-foot{margin-top:30px;color:var(--muted);font-size:.72rem;letter-spacing:.1em;line-height:1.8}
+.panel{border:1px solid var(--line);background:linear-gradient(145deg,var(--panel2),var(--panel));border-radius:20px;padding:22px;box-shadow:0 18px 55px rgba(0,0,0,.25)}
+.navrow{display:flex;align-items:center;gap:12px;margin:24px 0 16px}
+.back{width:auto;padding:9px 12px;border-radius:10px}
+.heading{font-weight:800;letter-spacing:.08em;color:var(--accent)}
+.desc{font-size:.83rem;color:var(--muted);margin:5px 0 20px}
+label{display:block;font-size:.7rem;font-weight:800;letter-spacing:.14em;color:var(--muted);margin:17px 0 8px}
+textarea{width:100%;min-height:130px;resize:vertical;background:rgba(0,0,0,.24);border:1px solid var(--line);border-radius:12px;padding:13px;color:var(--text);font: .93rem/1.55 ui-monospace,Consolas,monospace}
+textarea:focus,input:focus{outline:1px solid var(--accent);box-shadow:0 0 0 3px var(--glow)}
+input[type=number]{width:88px;padding:10px;background:var(--panel);border:1px solid var(--line);border-radius:10px;color:var(--accent);font-weight:800;font-size:1.1rem;text-align:center}
+.keyrow{display:flex;align-items:center;gap:10px}
+.small{font-size:.75rem;color:var(--muted)}
+.controls{display:flex;gap:9px;flex-wrap:wrap;margin-top:14px}
+.controls .btn{flex:1}
+.output{position:relative}
+.processing{display:none;position:absolute;inset:0;border-radius:12px;background:rgba(2,9,7,.96);z-index:2;align-items:center;justify-content:center;flex-direction:column;gap:13px;text-align:center}
+body.tech .processing{background:rgba(4,10,23,.97)}
+.output.busy .processing{display:flex}
+.scan{position:absolute;left:0;right:0;top:0;height:2px;background:var(--accent);box-shadow:0 0 12px var(--accent);animation:scan 1.2s ease-in-out infinite}
+.progress{width:65%;height:4px;background:var(--line);border-radius:10px;overflow:hidden}
+.progress span{display:block;height:100%;width:0;background:var(--accent);animation:progress 1.35s linear forwards}
+.proc-title{color:var(--accent);font-size:.78rem;letter-spacing:.16em;font-weight:800}
+.status{min-height:20px;color:var(--accent);font-size:.76rem;margin-top:10px}
+.note{text-align:center;color:var(--muted);font-size:.7rem;line-height:1.5;margin:16px 6px}
+@keyframes enter{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes scan{0%{transform:translateY(0);opacity:.3}100%{transform:translateY(120px);opacity:1}}
+@keyframes progress{to{width:100%}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+</style>
+</head>
+<body>
+<div class="app">
+<button class="theme" id="themeBtn">◉ HACKER MODE</button>
+
+<section class="screen active" id="home">
+ <div class="home">
+  <div class="logo" aria-hidden="true">🔐</div>
+  <h1>SECRETUM</h1><div class="brand-sub">CÉSAR CIPHER</div>
+  <div class="tagline">Tus palabras.<br>Tu clave.<br><strong>Tu secreto.</strong></div>
+  <div class="menu">
+   <button class="btn primary" id="createBtn">🔐 Crear mensaje secreto</button>
+   <button class="btn" id="receiveBtn">📩 Mensaje recibido</button>
+  </div>
+  <div class="home-foot">ENCRYPT · SHARE · DECRYPT<br>Un juego de mensajes secretos basado en el cifrado César</div>
+ </div>
+</section>
+
+<section class="screen" id="work">
+ <div class="navrow"><button class="btn back" id="homeBtn">← Inicio</button><div><div class="heading" id="workTitle">CREAR MENSAJE SECRETO</div><div class="small" id="workDesc">Escribe algo y conviértelo en un mensaje secreto.</div></div></div>
+ <div class="panel">
+  <label for="inputText" id="inputLabel">TU MENSAJE</label>
+  <textarea id="inputText" placeholder="Escribe aquí tu mensaje..."></textarea>
+  <label for="shift">CLAVE SECRETA (DESPLAZAMIENTO)</label>
+  <div class="keyrow"><input id="shift" type="number" min="0" max="999" value="3"><span class="small">Usa la misma clave para descifrarlo.</span></div>
+  <div class="controls"><button class="btn primary" id="runBtn">⟶ Cifrar para enviar</button><button class="btn" id="clearBtn">Limpiar</button></div>
+  <label for="outputText" id="outputLabel">MENSAJE CIFRADO</label>
+  <div class="output" id="outputWrap">
+   <textarea id="outputText" readonly placeholder="El resultado aparecerá aquí..."></textarea>
+   <div class="processing"><div class="scan"></div><div class="proc-title" id="procTitle">CIFRANDO MENSAJE...</div><div class="progress"><span></span></div><div class="small">APLICANDO CIFRADO CÉSAR</div></div>
+  </div>
+  <div class="controls"><button class="btn" id="copyBtn">Copiar resultado</button><button class="btn" id="shareBtn">Compartir</button></div>
+  <div class="status" id="status" aria-live="polite"></div>
+ </div>
+ <div class="note">SECRETUM es un juego de mensajes secretos. El cifrado César es clásico y recreativo; no lo uses para proteger información sensible.</div>
+</section>
+</div>
+<script>
+const $=id=>document.getElementById(id);
+let mode='encrypt',busy=false;
+function show(screen){$('home').classList.toggle('active',screen==='home');$('work').classList.toggle('active',screen==='work');}
+function setMode(next){
+ mode=next;
+ const decrypt=next==='decrypt';
+ $('workTitle').textContent=decrypt?'DESCIFRAR MENSAJE RECIBIDO':'CREAR MENSAJE SECRETO';
+ $('workDesc').textContent=decrypt?'Pega el mensaje que te enviaron y usa la misma clave.':'Escribe algo y conviértelo en un mensaje secreto.';
+ $('inputLabel').textContent=decrypt?'PEGA EL MENSAJE RECIBIDO':'TU MENSAJE';
+ $('inputText').placeholder=decrypt?'Pega aquí el mensaje cifrado que recibiste...':'Escribe aquí tu mensaje...';
+ $('outputLabel').textContent=decrypt?'MENSAJE DESCIFRADO':'MENSAJE CIFRADO';
+ $('runBtn').textContent=decrypt?'⟶ Descifrar mensaje':'⟶ Cifrar para enviar';
+ $('procTitle').textContent=decrypt?'DESCIFRANDO MENSAJE...':'CIFRANDO MENSAJE...';
+ $('status').textContent='';
+ $('inputText').value='';$('outputText').value='';
+ show('work');$('inputText').focus();
+}
+function caesar(text,shift,decrypt){
+ const a=((shift%26)+26)%26*(decrypt?-1:1),d=((shift%10)+10)%10*(decrypt?-1:1);
+ return [...text].map(ch=>{let n=ch.codePointAt(0);if(n>=65&&n<=90)return String.fromCharCode(65+(n-65+a+26)%26);if(n>=97&&n<=122)return String.fromCharCode(97+(n-97+a+26)%26);if(n>=48&&n<=57)return String.fromCharCode(48+(n-48+d+10)%10);return ch;}).join('');
+}
+function run(){
+ if(busy)return;
+ let key=parseInt($('shift').value,10);if(!Number.isFinite(key))key=0;key=Math.max(0,Math.min(999,key));$('shift').value=key;
+ const source=$('inputText').value;
+ busy=true;$('runBtn').disabled=true;$('outputText').value='';$('outputWrap').classList.add('busy');
+ $('status').textContent=mode==='encrypt'?'Preparando mensaje secreto...':'Descifrando mensaje recibido...';
+ setTimeout(()=>{
+  $('outputText').value=caesar(source,key,mode==='decrypt');
+  $('outputWrap').classList.remove('busy');$('runBtn').disabled=false;
+  $('status').textContent=mode==='encrypt'?'¡Mensaje cifrado! Ya puedes copiarlo o compartirlo.':'¡Mensaje descifrado!';
+  busy=false;
+ },1400);
+}
+$('createBtn').addEventListener('click',()=>setMode('encrypt'));
+$('receiveBtn').addEventListener('click',()=>setMode('decrypt'));
+$('homeBtn').addEventListener('click',()=>{if(busy)return;show('home');});
+$('runBtn').addEventListener('click',run);
+$('clearBtn').addEventListener('click',()=>{if(busy)return;$('inputText').value='';$('outputText').value='';$('status').textContent='Listo para otro mensaje.';$('inputText').focus();});
+$('copyBtn').addEventListener('click',async()=>{const v=$('outputText').value;if(!v){$('status').textContent='Primero genera un resultado.';return;}try{await navigator.clipboard.writeText(v);$('status').textContent='Copiado al portapapeles.';}catch(e){$('outputText').focus();$('outputText').select();$('status').textContent='Selecciona el texto y cópialo.';}});
+$('shareBtn').addEventListener('click',async()=>{const v=$('outputText').value;if(!v){$('status').textContent='Primero genera un resultado.';return;}try{if(navigator.share){await navigator.share({title:'SECRETUM — César Cipher',text:v});$('status').textContent='Compartido.';}else{await navigator.clipboard.writeText(v);$('status').textContent='Resultado copiado; puedes pegarlo en tu chat.';}}catch(e){if(e.name!=='AbortError')$('status').textContent='No se pudo compartir en este dispositivo.';}});
+$('themeBtn').addEventListener('click',()=>{document.body.classList.toggle('tech');const tech=document.body.classList.contains('tech');$('themeBtn').textContent=tech?'◉ DARK TECH':'◉ HACKER MODE';});
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(()=>{}));
+}
+</script>
+</body>
+</html>

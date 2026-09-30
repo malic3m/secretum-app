@@ -1,0 +1,14 @@
+{
+  "name": "SECRETUM — César Cipher",
+  "short_name": "SECRETUM",
+  "description": "Un juego de mensajes secretos basado en el cifrado César.",
+  "lang": "es-MX",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#050b09",
+  "theme_color": "#050b09",
+  "icons": [
+    {"src": "./icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any"}
+  ]
+}
